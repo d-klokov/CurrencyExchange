@@ -103,7 +103,7 @@ public class ExchangeServlet extends HttpServlet {
                         return;
                     }
 
-                    rate = crossExchangeRateFrom.get().getRate() / crossExchangeRateTo.get().getRate();
+                    rate = crossExchangeRateTo.get().getRate() / crossExchangeRateFrom.get().getRate();
                 }
             }
             convertedAmount = amountDouble * rate;
