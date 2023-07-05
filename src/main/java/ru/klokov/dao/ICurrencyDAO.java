@@ -1,7 +1,6 @@
 package ru.klokov.dao;
 
 import ru.klokov.exception.DatabaseException;
-import ru.klokov.exception.ResourceNotFoundException;
 import ru.klokov.model.Currency;
 
 import java.util.List;

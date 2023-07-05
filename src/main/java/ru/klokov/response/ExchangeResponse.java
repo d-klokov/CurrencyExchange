@@ -2,19 +2,21 @@ package ru.klokov.response;
 
 import ru.klokov.model.Currency;
 
+import java.math.BigDecimal;
+
 public class ExchangeResponse {
-    private Currency baseCurrency;
-    private Currency targetCurrency;
-    private Double rate;
-    private Double amount;
-    private Double convertedAmount;
+    private final Currency baseCurrency;
+    private final Currency targetCurrency;
+    private final BigDecimal rate;
+    private final BigDecimal amount;
+    private final BigDecimal convertedAmount;
 
     public ExchangeResponse(
             Currency baseCurrency,
             Currency targetCurrency,
-            Double rate,
-            Double amount,
-            Double convertedAmount
+            BigDecimal rate,
+            BigDecimal amount,
+            BigDecimal convertedAmount
     ) {
         this.baseCurrency = baseCurrency;
         this.targetCurrency = targetCurrency;
@@ -27,39 +29,19 @@ public class ExchangeResponse {
         return baseCurrency;
     }
 
-    public void setBaseCurrency(Currency baseCurrency) {
-        this.baseCurrency = baseCurrency;
-    }
-
     public Currency getTargetCurrency() {
         return targetCurrency;
     }
 
-    public void setTargetCurrency(Currency targetCurrency) {
-        this.targetCurrency = targetCurrency;
-    }
-
-    public Double getRate() {
+    public BigDecimal getRate() {
         return rate;
     }
 
-    public void setRate(Double rate) {
-        this.rate = rate;
-    }
-
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
-        this.amount = amount;
-    }
-
-    public Double getConvertedAmount() {
+    public BigDecimal getConvertedAmount() {
         return convertedAmount;
-    }
-
-    public void setConvertedAmount(Double convertedAmount) {
-        this.convertedAmount = convertedAmount;
     }
 }

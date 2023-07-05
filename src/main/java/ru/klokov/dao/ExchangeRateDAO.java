@@ -5,6 +5,7 @@ import ru.klokov.model.Currency;
 import ru.klokov.model.ExchangeRate;
 
 import javax.sql.DataSource;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,52 +25,21 @@ public class ExchangeRateDAO implements IExchangeRateDAO {
 
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement()) {
-            try (ResultSet resultSet = statement.executeQuery(sql)) {
-                while (resultSet.next()) {
-                    exchangeRates.add(
-                            new ExchangeRate(
-                                    resultSet.getLong("id"),
-                                    resultSet.getLong("base_currency_id"),
-                                    resultSet.getLong("target_currency_id"),
-                                    resultSet.getDouble("rate")
-                            ));
-                }
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                exchangeRates.add(
+                        new ExchangeRate(
+                                resultSet.getLong("id"),
+                                resultSet.getLong("base_currency_id"),
+                                resultSet.getLong("target_currency_id"),
+                                resultSet.getBigDecimal("rate")
+                        ));
             }
         } catch (SQLException e) {
             throw new DatabaseException("Database error!");
         }
         return exchangeRates;
     }
-
-//    @Override
-//    public ExchangeRate findById(Long id){
-//        String sql = "SELECT * FROM exchange_rates WHERE id = ?";
-//        ExchangeRate exchangeRate = null;
-//
-//        try (Connection connection = dataSource.getConnection();
-//             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-//
-//            preparedStatement.setLong(1, id);
-//            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-//                if (resultSet.next()) {
-//                    exchangeRate = new ExchangeRate(
-//                            resultSet.getLong("id"),
-//                            resultSet.getLong("base_currency_id"),
-//                            resultSet.getLong("target_currency_id"),
-//                            resultSet.getDouble("rate")
-//                    );
-//                }
-//            }
-//        } catch (SQLException e) {
-//            throw new DatabaseException("Database error!");
-//        }
-//
-//        if (exchangeRate == null) {
-//            throw new ResourceNotFoundException("Exchange rate with " + id + " not found!");
-//        }
-//
-//        return exchangeRate;
-//    }
 
     @Override
     public Optional<ExchangeRate> findByCurrencyPair(Currency baseCurrency, Currency targetCurrency) throws DatabaseException {
@@ -81,15 +51,14 @@ public class ExchangeRateDAO implements IExchangeRateDAO {
 
             preparedStatement.setLong(1, baseCurrency.getId());
             preparedStatement.setLong(2, targetCurrency.getId());
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    exchangeRate = new ExchangeRate(
-                            resultSet.getLong("id"),
-                            resultSet.getLong("base_currency_id"),
-                            resultSet.getLong("target_currency_id"),
-                            resultSet.getDouble("rate")
-                    );
-                }
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                exchangeRate = new ExchangeRate(
+                        resultSet.getLong("id"),
+                        resultSet.getLong("base_currency_id"),
+                        resultSet.getLong("target_currency_id"),
+                        resultSet.getBigDecimal("rate")
+                );
             }
         } catch (SQLException e) {
             throw new DatabaseException("Database error!");
@@ -108,15 +77,14 @@ public class ExchangeRateDAO implements IExchangeRateDAO {
 
             preparedStatement.setLong(1, exchangeRate.getBaseCurrencyId());
             preparedStatement.setLong(2, exchangeRate.getTargetCurrencyId());
-            preparedStatement.setDouble(3, exchangeRate.getRate());
+            preparedStatement.setBigDecimal(3, exchangeRate.getRate());
 
             rows = preparedStatement.executeUpdate();
 
             if (rows != 0) {
-                try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
-                    if (keys.next()) {
-                        exchangeRate.setId(keys.getLong(1));
-                    }
+                ResultSet keys = preparedStatement.getGeneratedKeys();
+                if (keys.next()) {
+                    exchangeRate.setId(keys.getLong(1));
                 }
             }
         } catch (SQLException e) {
@@ -127,7 +95,7 @@ public class ExchangeRateDAO implements IExchangeRateDAO {
     }
 
     @Override
-    public ExchangeRate update(ExchangeRate exchangeRate, double newRate) throws DatabaseException {
+    public ExchangeRate update(ExchangeRate exchangeRate, BigDecimal newRate) throws DatabaseException {
         String sql = "UPDATE exchange_rates SET base_currency_id = ?, target_currency_id = ?, rate = ? WHERE id = ?";
 
         try (Connection connection = dataSource.getConnection();
@@ -135,7 +103,7 @@ public class ExchangeRateDAO implements IExchangeRateDAO {
 
             preparedStatement.setLong(1, exchangeRate.getBaseCurrencyId());
             preparedStatement.setLong(2, exchangeRate.getTargetCurrencyId());
-            preparedStatement.setDouble(3, newRate);
+            preparedStatement.setBigDecimal(3, newRate);
             preparedStatement.setLong(4, exchangeRate.getId());
 
             preparedStatement.executeUpdate();

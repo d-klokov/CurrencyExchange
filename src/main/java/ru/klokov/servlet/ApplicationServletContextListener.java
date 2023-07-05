@@ -7,7 +7,10 @@ import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
 import ru.klokov.dao.CurrencyDAO;
 import ru.klokov.dao.ExchangeRateDAO;
+import ru.klokov.dao.ICurrencyDAO;
+import ru.klokov.dao.IExchangeRateDAO;
 import ru.klokov.datasource.SQLiteDataSourceFactory;
+import ru.klokov.service.ExchangeService;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -26,13 +29,15 @@ public class ApplicationServletContextListener implements ServletContextListener
         ServletContext context = sce.getServletContext();
 
         DataSource sqliteDataSource = new SQLiteDataSourceFactory().getDataSource();
-        CurrencyDAO currencyDAO = new CurrencyDAO(sqliteDataSource);
+        ICurrencyDAO currencyDAO = new CurrencyDAO(sqliteDataSource);
+        IExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO(sqliteDataSource);
 
         initDataBase(sqliteDataSource);
 
         context.setAttribute("mapper", new ObjectMapper());
         context.setAttribute("currencyDAO", currencyDAO);
         context.setAttribute("exchangeRateDAO", new ExchangeRateDAO(sqliteDataSource));
+        context.setAttribute("exchangeService", new ExchangeService(currencyDAO, exchangeRateDAO));
     }
 
     private void initDataBase(DataSource dataSource) {

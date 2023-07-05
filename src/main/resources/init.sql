@@ -5,6 +5,11 @@ CREATE TABLE IF NOT EXISTS currencies (
     full_name TEXT NOT NULL,
     sign TEXT NOT NULL
 );
+CREATE INDEX idx_id
+ON currencies(id);
+CREATE INDEX idx_code
+ON currencies(code);
+
 INSERT OR IGNORE INTO currencies (code, full_name, sign) VALUES ('USD', 'United States dollar', '$');
 INSERT OR IGNORE INTO currencies (code, full_name, sign) VALUES ('EUR', 'Euro', '€');
 INSERT OR IGNORE INTO currencies (code, full_name, sign) VALUES ('RUB', 'Russian Ruble', '₽');
@@ -26,6 +31,9 @@ CREATE TABLE IF NOT EXISTS exchange_rates (
     FOREIGN KEY (target_currency_id) REFERENCES currencies (id),
     UNIQUE (base_currency_id, target_currency_id)
 );
+CREATE INDEX idx_currency_pair
+ON exchange_rates(base_currency_id, target_currency_id);
+
 INSERT OR IGNORE INTO exchange_rates (base_currency_id, target_currency_id, rate) VALUES (1, 2, 0.9270);
 INSERT OR IGNORE INTO exchange_rates (base_currency_id, target_currency_id, rate) VALUES (1, 3, 80.0473);
 INSERT OR IGNORE INTO exchange_rates (base_currency_id, target_currency_id, rate) VALUES (1, 4, 133.84);
